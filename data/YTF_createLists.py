@@ -30,6 +30,7 @@ for _, persons, _ in os.walk(label_path):
           for filename in files:
             frame_in_path = input_vid_path + "/" + filename
             frame_in_path = frame_in_path.replace("./", "")
+            frame_in_path = frame_in_path.replace(".png", ".jpg")
             frame_label_path = label_vid_path + "/" + filename
             frame_label_path = frame_label_path.replace("./", "")
             frame_path = frame_in_path + "," + frame_label_path + "\n"
