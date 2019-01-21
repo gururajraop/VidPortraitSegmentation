@@ -48,14 +48,15 @@ def val(args, val_loader, model, criterion):
         # compute the loss
         loss = criterion(output, target_var)
 
-        epoch_loss.append(loss.data[0])
+        epoch_loss.append(loss.item())
 
         time_taken = time.time() - start_time
 
         # compute the confusion matrix
         iouEvalVal.addBatch(output.max(1)[1].data, target_var.data)
 
-        print('[%d/%d] loss: %.3f time: %.2f' % (i, total_batches, loss.data[0], time_taken))
+        if i % 1000 == 0:
+          print('[%d/%d] loss: %.3f time: %.2f' % (i, total_batches, loss.item(), time_taken))
 
     average_epoch_loss_val = sum(epoch_loss) / len(epoch_loss)
 
@@ -102,13 +103,14 @@ def train(args, train_loader, model, criterion, optimizer, epoch):
         loss.backward()
         optimizer.step()
 
-        epoch_loss.append(loss.data[0])
+        epoch_loss.append(loss.item())
         time_taken = time.time() - start_time
 
         #compute the confusion matrix
         iouEvalTrain.addBatch(output.max(1)[1].data, target_var.data)
 
-        print('[%d/%d] loss: %.3f time:%.2f' % (i, total_batches, loss.data[0], time_taken))
+        if i % 1000 == 0:
+          print('[%d/%d] loss: %.3f time:%.2f' % (i, total_batches, loss.item(), time_taken))
 
     average_epoch_loss_train = sum(epoch_loss) / len(epoch_loss)
 
@@ -386,7 +388,7 @@ if __name__ == '__main__':
     parser.add_argument('--scaleIn', type=int, default=8, help='For ESPNet-C, scaleIn=8. For ESPNet, scaleIn=1')
     parser.add_argument('--max_epochs', type=int, default=300, help='Max. number of epochs')
     parser.add_argument('--num_workers', type=int, default=4, help='No. of parallel threads')
-    parser.add_argument('--batch_size', type=int, default=12, help='Batch size. 12 for ESPNet-C and 6 for ESPNet. '
+    parser.add_argument('--batch_size', type=int, default=8, help='Batch size. 12 for ESPNet-C and 6 for ESPNet. '
                                                                    'Change as per the GPU memory')
     parser.add_argument('--step_loss', type=int, default=100, help='Decrease learning rate after how many epochs.')
     parser.add_argument('--lr', type=float, default=5e-4, help='Initial learning rate')
