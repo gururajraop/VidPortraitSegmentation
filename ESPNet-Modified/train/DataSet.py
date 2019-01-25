@@ -30,8 +30,8 @@ class MyDataset(torch.utils.data.Dataset):
         '''
         image_name = self.imList[idx]
         label_name = self.labelList[idx]
-        image = cv2.imread(image_name)
-        label = cv2.imread(label_name, 0)
+        image = cv2.imread(image_name, cv2.IMREAD_UNCHANGED)
+        label = cv2.imread(label_name, cv2.IMREAD_UNCHANGED)
         if self.transform:
             [image, label] = self.transform(image, label)
         return (image, label)

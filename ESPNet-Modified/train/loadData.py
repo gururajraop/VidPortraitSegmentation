@@ -57,7 +57,7 @@ class LoadData:
                 line_arr = line.split(',')
                 img_file = ((self.data_dir).strip() + '/' + line_arr[0].strip()).strip()
                 label_file = ((self.data_dir).strip() + '/' + line_arr[1].strip()).strip()
-                label_img = cv2.imread(label_file, 0)
+                label_img = cv2.imread(label_file, cv2.IMREAD_UNCHANGED)
                 unique_values = np.unique(label_img)
                 max_val = max(unique_values)
                 min_val = min(unique_values)
@@ -69,7 +69,7 @@ class LoadData:
                     hist = np.histogram(label_img, self.classes)
                     global_hist += hist[0]
 
-                    rgb_img = cv2.imread(img_file)
+                    rgb_img = cv2.imread(img_file, cv2.IMREAD_UNCHANGED)
                     self.mean[0] += np.mean(rgb_img[:,:,0])
                     self.mean[1] += np.mean(rgb_img[:, :, 1])
                     self.mean[2] += np.mean(rgb_img[:, :, 2])
