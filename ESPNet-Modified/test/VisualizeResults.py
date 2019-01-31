@@ -30,7 +30,7 @@ pallete = [[128, 64, 128],
            [119, 11, 32],
            [0, 0, 0]]
 
-pallete1 = [[0, 0, 0], [50, 150, 100]]
+pallete1 = [[0, 0, 0], [10, 150, 50]]
 
 
 def relabel(img):
@@ -114,7 +114,7 @@ def evaluateModel(args, model, up, image_list):
                 classMap_numpy_color[classMap_numpy == idx] = [b, g, r]
             cv2.imwrite(args.savedir + os.sep + 'c_' + name.replace(args.img_extn, 'png'), classMap_numpy_color)
             if args.overlay:
-                overlayed = cv2.addWeighted(img_orig, 0.5, classMap_numpy_color, 0.5, 0)
+                overlayed = cv2.addWeighted(img_orig, 0.4, classMap_numpy_color, 0.6, 0)
                 cv2.imwrite(args.savedir + os.sep + 'over_' + name.replace(args.img_extn, 'jpg'), overlayed)
 
         if args.cityFormat:
