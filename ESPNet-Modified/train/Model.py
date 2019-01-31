@@ -375,6 +375,10 @@ class ESPNet(nn.Module):
         output2_c = self.up_l3(self.br(self.modules[10](output2_cat))) #RUM
 
         output1_C = self.level3_C(output1_cat) # project to C-dimensional space
+
+        if output1_C.size() != output2_c.size():
+          sz = output1_C.size()[3]
+          output2_c = output2_c[:, :, :, 1:sz+1]
         comb_l2_l3 = self.up_l2(self.combine_l2_l3(torch.cat([output1_C, output2_c], 1))) #RUM
 
         concat_features = self.conv(torch.cat([comb_l2_l3, output0_cat], 1))
