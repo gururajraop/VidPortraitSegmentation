@@ -3,7 +3,6 @@ import os
 import torch
 import pickle
 import Model as net
-from torch.autograd import Variable
 import VisualizeGraph as viz
 from Criteria import CrossEntropyLoss2d
 import torch.backends.cudnn as cudnn
@@ -35,15 +34,16 @@ def val(args, val_loader, model, criterion):
     for i, (input, target) in enumerate(val_loader):
         start_time = time.time()
 
-        if args.onGPU == True:
-            input = input.cuda()
-            target = target.cuda()
+        input_var = torch.Tensor(input)
+        target_var = torch.LongTensor(target)
 
-        input_var = torch.autograd.Variable(input, volatile=True)
-        target_var = torch.autograd.Variable(target, volatile=True)
+        if args.onGPU == True:
+            input_var = input_var.cuda()
+            target_var = target_var.cuda()
 
         # run the mdoel
-        output = model(input_var)
+        with torch.no_grad():
+            output = model(input_var)
 
         # compute the loss
         loss = criterion(output, target_var)
@@ -85,14 +85,14 @@ def train(args, train_loader, model, criterion, optimizer, epoch):
     for i, (input, target) in enumerate(train_loader):
         start_time = time.time()
 
+        input_var = torch.Tensor(input)
+        target_var = torch.LongTensor(target)
+
         if args.onGPU == True:
-            input = input.cuda()
-            target = target.cuda()
+            input_var = input_var.cuda()
+            target_var = target_var.cuda()
 
-        input_var = torch.autograd.Variable(input)
-        target_var = torch.autograd.Variable(target)
-
-        #run the mdoel
+        #run the model
         output = model(input_var)
 
         #set the grad to zero
@@ -177,7 +177,7 @@ def trainValidateSegmentation(args):
         os.mkdir(args.savedir)
 
     if args.visualizeNet:
-        x = Variable(torch.randn(1, 3, args.inWidth, args.inHeight))
+        x = torch.Tensor(torch.randn(1, 3, args.inWidth, args.inHeight))
 
         if args.onGPU:
             x = x.cuda()
@@ -387,7 +387,7 @@ if __name__ == '__main__':
     parser.add_argument('--inHeight', type=int, default=420, help='Height of RGB image')
     parser.add_argument('--scaleIn', type=int, default=8, help='For ESPNet-C, scaleIn=8. For ESPNet, scaleIn=1')
     parser.add_argument('--max_epochs', type=int, default=300, help='Max. number of epochs')
-    parser.add_argument('--num_workers', type=int, default=4, help='No. of parallel threads')
+    parser.add_argument('--num_workers', type=int, default=1, help='No. of parallel threads')
     parser.add_argument('--batch_size', type=int, default=12, help='Batch size. 12 for ESPNet-C and 6 for ESPNet. '
                                                                    'Change as per the GPU memory')
     parser.add_argument('--step_loss', type=int, default=100, help='Decrease learning rate after how many epochs.')
