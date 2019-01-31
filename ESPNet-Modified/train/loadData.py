@@ -59,6 +59,9 @@ class LoadData:
                 label_file = ((self.data_dir).strip() + '/' + line_arr[1].strip()).strip()
                 label_img = cv2.imread(label_file, cv2.IMREAD_UNCHANGED)
                 unique_values = np.unique(label_img)
+                if (unique_values != [0, 1]).any():
+                  print("Wrong label combination with ", line_arr[1].strip())
+                  print(unique_values)
                 max_val = max(unique_values)
                 min_val = min(unique_values)
 
