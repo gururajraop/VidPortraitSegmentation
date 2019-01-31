@@ -1,6 +1,6 @@
 import numpy as np
 import torch
-from torch.autograd import Variable
+import torch
 import glob
 import cv2
 from PIL import Image as PILImage
@@ -29,6 +29,8 @@ pallete = [[128, 64, 128],
            [0, 0, 230],
            [119, 11, 32],
            [0, 0, 0]]
+
+pallete1 = [[0, 0, 0], [50, 150, 100]]
 
 
 def relabel(img):
@@ -86,10 +88,14 @@ def evaluateModel(args, model, up, image_list):
         img = img.transpose((2, 0, 1))
         img_tensor = torch.from_numpy(img)
         img_tensor = torch.unsqueeze(img_tensor, 0)  # add a batch dimension
-        img_variable = Variable(img_tensor, volatile=True)
+        img_variable = torch.Tensor(img_tensor)
         if args.gpu:
             img_variable = img_variable.cuda()
-        img_out = model(img_variable)
+
+        start = time.time()
+        with torch.no_grad():
+          img_out = model(img_variable)
+        print("execution time: ", time.time() - start)
 
         if args.modelType == 2:
             img_out = up(img_out)
@@ -103,8 +109,8 @@ def evaluateModel(args, model, up, image_list):
 
         if args.colored:
             classMap_numpy_color = np.zeros((img.shape[1], img.shape[2], img.shape[0]), dtype=np.uint8)
-            for idx in range(len(pallete)):
-                [r, g, b] = pallete[idx]
+            for idx in range(len(pallete1)):
+                [r, g, b] = pallete1[idx]
                 classMap_numpy_color[classMap_numpy == idx] = [b, g, r]
             cv2.imwrite(args.savedir + os.sep + 'c_' + name.replace(args.img_extn, 'png'), classMap_numpy_color)
             if args.overlay:
@@ -123,7 +129,7 @@ def main(args):
 
     up = None
     if args.modelType == 2:
-        up = torch.nn.Upsample(scale_factor=8, mode='bilinear')
+        up = torch.nn.Upsample(scale_factor=8, mode='bilinear', align_corners=True)
         if args.gpu:
             up = up.cuda()
 
